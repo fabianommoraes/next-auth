@@ -1,10 +1,12 @@
 // import { getSession } from "next-auth/react";
-// import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ProfileForm from "./profile-form";
 import classes from "./user-profile.module.css";
+import Loader from "../loader/loader";
 
 function UserProfile() {
-  // const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [response, setResponse] = useState(false);
 
   // useEffect(() => {
   //   getSession().then((session) => {
@@ -21,6 +23,9 @@ function UserProfile() {
   // }
 
   async function changePasswordHandler(passwordData) {
+    setIsLoading(true);
+    setResponse(false);
+
     const response = await fetch("/api/user/change-password", {
       method: "PATCH",
       body: JSON.stringify(passwordData),
@@ -29,16 +34,26 @@ function UserProfile() {
       },
     });
 
-    const data = await response.json();
+    try {
+      const data = await response.json();
+      setResponse(data.message);
+    } catch (error) {
+      setResponse("Something went wrong! Try again.");
+    }
 
-    console.log(data);
+    setIsLoading(false);
   }
 
   return (
-    <section className={classes.profile}>
-      <h1>Your User Profile</h1>
-      <ProfileForm onChangePassword={changePasswordHandler} />
-    </section>
+    <>
+      <section className={classes.profile}>
+        <h1>Your User Profile</h1>
+        <ProfileForm onChangePassword={changePasswordHandler} />
+        {response && <h2>{response}</h2>}
+      </section>
+
+      {isLoading && <Loader />}
+    </>
   );
 }
 

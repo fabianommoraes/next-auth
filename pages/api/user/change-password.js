@@ -10,8 +10,6 @@ async function handler(req, res) {
 
   const session = await getServerSession(req, res);
 
-  console.log("session", session);
-
   if (!session) {
     res.status(401).json({ message: "Not authenticated!" });
     return;
